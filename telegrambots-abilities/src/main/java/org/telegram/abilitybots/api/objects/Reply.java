@@ -52,6 +52,18 @@ public class Reply {
     return Reply.of(action, newArrayList(conditions));
   }
 
+  public static BiConsumer<BaseAbilityBot, Update> ToBiConsumer(Consumer<Update> consumer) {
+    // convert Consumer to BiConsumer
+    return (baseAbilityBot, update) -> consumer.accept(update);
+  }
+
+  public static Reply of(Consumer<Update> action, List<Predicate<Update>> conditions) {
+    return new Reply(conditions, ToBiConsumer(action));
+  }
+
+  public static Reply of(Consumer<Update> action, Predicate<Update>... conditions) {
+    return Reply.of(ToBiConsumer(action), newArrayList(conditions));
+  }
   public boolean isOkFor(Update update) {
     // The following variable is required to avoid bug #JDK-8044546
     BiFunction<Boolean, Predicate<Update>, Boolean> stateAnd = (state, cond) -> state && cond.test(update);
