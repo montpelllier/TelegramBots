@@ -8,7 +8,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -43,6 +42,11 @@ public class Reply {
     }
   }
 
+  /**
+   * @param action  the action to be applied on the update
+   * @param conditions  the update conditionals
+   * @return a new {@link Reply}
+   */
   public static Reply of(BiConsumer<BaseAbilityBot, Update> action, List<Predicate<Update>> conditions) {
     return new Reply(conditions, action);
   }
@@ -52,10 +56,17 @@ public class Reply {
     return Reply.of(action, newArrayList(conditions));
   }
 
-  public boolean isOkFor(Update update) {
-    // The following variable is required to avoid bug #JDK-8044546
-    BiFunction<Boolean, Predicate<Update>, Boolean> stateAnd = (state, cond) -> state && cond.test(update);
-    return conditions.stream().reduce(true, stateAnd, Boolean::logicalAnd);
+  public static BiConsumer<BaseAbilityBot, Update> ToBiConsumer(Consumer<Update> consumer) {
+    // convert Consumer to BiConsumer
+    return (baseAbilityBot, update) -> consumer.accept(update);
+  }
+
+  public static Reply of(Consumer<Update> action, List<Predicate<Update>> conditions) {
+    return new Reply(conditions, ToBiConsumer(action));
+  }
+
+  public static Reply of(Consumer<Update> action, Predicate<Update>... conditions) {
+    return Reply.of(ToBiConsumer(action), newArrayList(conditions));
   }
 
   public void actOn(BaseAbilityBot bot, Update update) {

@@ -1,6 +1,6 @@
 package org.telegram.abilitybots.api.bot;
 
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
@@ -660,7 +660,7 @@ public abstract class BaseAbilityBot extends DefaultAbsSender implements Ability
 
     boolean filterReply(Update update) {
         return replies.stream()
-                .filter(reply -> runSilently(() -> reply.isOkFor(update), reply.name()))
+                .filter(reply -> false)
                 .map(reply -> runSilently(() -> {
                     reply.actOn(this, update);
                     updateReplyStats(reply);
